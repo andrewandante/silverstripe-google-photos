@@ -1,1 +1,1 @@
-#SilverStripe Google Photos API Hook
+# SilverStripe Google Photos API Hook
