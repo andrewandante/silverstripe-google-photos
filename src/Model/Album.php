@@ -24,4 +24,8 @@ class Album extends DataObject
     private static $has_one = [
         'Account' => Account::class,
     ];
+
+    private static $has_many = [
+        'Photos' => Photo::class,
+    ];
 }

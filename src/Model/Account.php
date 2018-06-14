@@ -46,4 +46,13 @@ class Account extends DataObject
         );
     }
 
+    public function getTitle()
+    {
+        return sprintf("#%s %s %s",
+            $this->ID,
+            $this->OwnerDisplayName ?: '',
+            $this->OwnerEmail ? sprintf("(%s)", $this->OwnerEmail) : ''
+        );
+    }
+
 }

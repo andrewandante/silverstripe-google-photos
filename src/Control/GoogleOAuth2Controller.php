@@ -65,7 +65,6 @@ class GoogleOAuth2Controller extends Controller
                 'code' => $request->getVar('code')
             ]);
 
-            // Optional: Now you have a token you can look up a users profile data
             try {
                 // We got an access token, let's now get the owner details
                 $owner = $provider->getResourceOwner($token);
