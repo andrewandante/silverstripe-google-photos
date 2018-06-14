@@ -2,3 +2,9 @@
 Name: silverstripe-google-photos
 ---
 
+SilverStripe\Control\Director:
+  rules:
+    'googleauth': AndrewAndante\GooglePhotos\Control\GoogleOAuth2Controller
+SilverStripe\SiteConfig\SiteConfig:
+  extensions:
+    - AndrewAndante\GooglePhotos\SiteConfig\SiteConfigExtension
