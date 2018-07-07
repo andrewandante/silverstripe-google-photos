@@ -3,9 +3,11 @@
 namespace AndrewAndante\GooglePhotos\Task;
 
 use AndrewAndante\GooglePhotos\Model\Account;
+use AndrewAndante\GooglePhotos\Model\Photo;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use League\OAuth2\Client\Provider\Google;
+use SilverStripe\Assets\Image;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Convert;
@@ -40,11 +42,6 @@ class UpdateAlbumsTask extends BuildTask
                         $bodyArray = [
                             'pageSize' => 100,
                             'albumId' => $album->GoogleID,
-                            'filter' => [
-                                'mediaTypeFilter' => [
-                                    'mediaTypes' => ['PHOTO']
-                                ]
-                            ]
                         ];
                         if ($response && $response['nextPageToken']) {
                             $bodyArray['pageToken'] = $response['nextPageToken'];
@@ -63,11 +60,8 @@ class UpdateAlbumsTask extends BuildTask
                         $items = array_merge($items, $response['mediaItems']);
                     } while (isset($response['nextPageToken']));
 
-
-
                 } catch (\Exception $e) {
 
-                    // Failed to get user details
                     $error = 'Something went wrong';
                     if (Director::isDev()) {
                         $error .= ': ' . $e->__toString();
@@ -75,7 +69,47 @@ class UpdateAlbumsTask extends BuildTask
                     return $error;
 
                 }
+
+                foreach ($items as $item) {
+                    $photo = $this->getPhoto($album, $item);
+
+                    $dirpath = sprintf('assets/%s/%s/', Convert::raw2htmlid($album->Title), $photo->GoogleID);
+                    if (!is_dir($dirpath)) {
+                        mkdir($dirpath, 0777, true);
+                    }
+                    try {
+                        $client->request('GET', $photo->BaseURL . '=w16383-h16383',
+                            ['sink' => $dirpath . substr($item['mediaMetadata']['creationTime'], 0, 10) . '.png']);
+                        $file = Image::create();
+                        $file->setFromLocalFile($dirpath . 'original.png');
+                        $file->write();
+                        $photo->LocalFile = $file;
+                        $photo->write();
+                    } catch (\Exception $e) {
+                        $error = 'Something went wrong';
+                        if (Director::isDev()) {
+                            $error .= ': ' . $e->__toString();
+                        }
+                        return $error;
+                    }
+
+                }
             }
         }
+    }
+
+    protected function getPhoto($album, $item)
+    {
+        $photo = Photo::get()->filter(['GoogleID' => $item['id']])->first();
+        if (!$photo) {
+            $photo = Photo::create();
+        }
+        $photo->GoogleID = $item['id'];
+        $photo->BaseURL = $item['baseUrl'];
+        $photo->ProductURL = $item['productUrl'];
+        $photo->CreationTime = $item['mediaMetadata']['creationTime'];
+        $photo->Description = isset($item['description']) ? $item['description'] : 'No description provided';
+        $photo->AlbumID = $album->ID;
+        return $photo;
     }
 }

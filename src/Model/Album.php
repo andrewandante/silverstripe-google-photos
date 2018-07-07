@@ -10,7 +10,7 @@ class Album extends DataObject
         'Title' => 'Varchar',
         'GoogleID' => 'Varchar',
         'ProductURL' => 'Varchar',
-        'Sync' => 'Boolean(1)'
+        'Sync' => 'Boolean(0)'
     ];
 
     private static $table_name = 'GooglePhotos_Album';

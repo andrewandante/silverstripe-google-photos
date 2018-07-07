@@ -21,4 +21,10 @@ class Photo extends DataObject
         'LocalFile' => Image::class,
         'Album' => Album::class,
     ];
+
+    private static $summary_fields = [
+        'Description',
+        'GoogleID',
+        'CreationTime'
+    ];
 }

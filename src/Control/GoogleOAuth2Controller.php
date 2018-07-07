@@ -91,7 +91,9 @@ class GoogleOAuth2Controller extends Controller
                     );
                     $guzzly = $client->send($albumsRequest);
                     $response = json_decode($guzzly->getBody(), true);
-                    $albums = array_merge($albums, $response['albums']);
+                    if (isset($response['albums'])) {
+                        $albums = array_merge($albums, $response['albums']);
+                    }
                 } while (isset($response['nextPageToken']));
 
                 $albumIDs = $account->Albums()->column('GoogleID');
@@ -103,8 +105,6 @@ class GoogleOAuth2Controller extends Controller
                 $account->write();
 
             } catch (\Exception $e) {
-
-                // Failed to get user details
                 $error = 'Something went wrong';
                 if (Director::isDev()) {
                     $error .= ': ' . $e->__toString();

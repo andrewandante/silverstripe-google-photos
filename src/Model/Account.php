@@ -3,8 +3,10 @@
 namespace AndrewAndante\GooglePhotos\Model;
 
 use AndrewAndante\GooglePhotos\Admin\AlbumAdmin;
+use AndrewAndante\GooglePhotos\Task\UpdateAlbumsTask;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
+use SilverStripe\Forms\LiteralField;
 use SilverStripe\ORM\DataObject;
 
 class Account extends DataObject
@@ -44,6 +46,16 @@ class Account extends DataObject
             $this->ID,
             'edit'
         );
+    }
+
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
+        $taskLink = '/dev/tasks/AndrewAndante-GooglePhotos-Task-UpdateAlbumsTask';
+        $fields->addFieldToTab('Root.Main',
+            LiteralField::create('SyncAlbums', sprintf('<a href="%s">Sync albums?</a>', $taskLink))
+        );
+        return $fields;
     }
 
     public function getTitle()
